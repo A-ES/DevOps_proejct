@@ -1,4 +1,4 @@
-# DevOps Agent - Team BROKENCODE
+# DevOps Agent 
 
 DevOps Agent is an autonomous CI/CD pipeline monitor, PR reviewer, and issue fixer powered by LangChain and LangGraph. Built for modern DevOps workflows, it seamlessly integrates with GitHub to automatically analyze CI failures, review Pull Requests based on a custom scoring system, and monitor CD pipelines across multiple cloud providers (AWS, GCP, Azure).
 
