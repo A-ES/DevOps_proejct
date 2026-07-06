@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Topbar from '../../components/Topbar/Topbar';
 import { useAuth } from '../../context/AuthContext';
-import { initializeRepo, type UserRepo } from '../../api/api';
+import { DEMO_MODE, initializeRepo, type UserRepo } from '../../api/api';
 import './InitRepoScreen.css';
 
 export default function InitRepoScreen() {
@@ -39,6 +39,12 @@ export default function InitRepoScreen() {
     }
     setIsInitializing(true);
     setError(null);
+
+    if (DEMO_MODE) {
+      window.setTimeout(() => navigate('/monitor'), 900);
+      return;
+    }
+
     try {
       await initializeRepo(selectedRepo.full_name);
       navigate('/monitor');
@@ -59,7 +65,9 @@ export default function InitRepoScreen() {
               Connect a <span className="init-title__highlight">Repository</span>
             </h2>
             <p className="init-search-block__subtitle">
-              The agent will build a structural map of your codebase and enable autonomous CI/CD recovery hooks.
+              {DEMO_MODE
+                ? 'Demo mode will replay how RSI ingestion, CI diagnosis, memory recall, and fix PR creation work.'
+                : 'The agent will build a structural map of your codebase and enable autonomous CI/CD recovery hooks.'}
             </p>
 
             {error && (
@@ -133,7 +141,7 @@ export default function InitRepoScreen() {
                 <span className={`material-symbols-outlined init-btn-primary__icon ${isInitializing ? 'animate-spin' : ''}`}>
                   {isInitializing ? 'progress_activity' : 'rocket_launch'}
                 </span>
-                {isInitializing ? 'PROCESSING ENGINE...' : 'INITIALIZE REPOSITORY'}
+                  {isInitializing ? 'PROCESSING ENGINE...' : DEMO_MODE ? 'RUN DEMO WORKFLOW' : 'INITIALIZE REPOSITORY'}
               </span>
               {!isInitializing && (
                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
