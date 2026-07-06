@@ -27,6 +27,9 @@ class Settings(BaseSettings):
 
     # ── Webhook ─────────────────────────────────────────
     webhook_base_url: str = ""  # Public URL for webhook callbacks (e.g. ngrok)
+    api_base_url: str = "http://localhost:8000"
+    frontend_base_url: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173,http://localhost:5174"
 
     # ── Database ────────────────────────────────────────
     database_url: str = ""
@@ -88,6 +91,11 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         """True when running in a production environment."""
         return self.app_env.lower() == "production"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        """Parse comma-separated CORS origins for the frontend."""
+        return [origin.strip().rstrip("/") for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 @lru_cache

@@ -1,6 +1,6 @@
 """
-Embedding client using BAAI/bge-m3 via OpenRouter.
-No local model needed — calls the OpenAI-compatible embeddings endpoint.
+Embedding client for OpenAI text-embedding-3-small.
+No local model needed — calls the OpenAI embeddings endpoint.
 """
 
 import logging

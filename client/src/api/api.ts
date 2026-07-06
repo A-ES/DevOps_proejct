@@ -3,7 +3,7 @@
  * TypeScript port of api.js — adds full type safety and proper error handling.
  */
 
-const API_BASE = 'http://localhost:8000';
+export const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
 const fetchOpts: RequestInit = {
   credentials: 'include', // send session cookie

@@ -1,0 +1,11 @@
+case_id,failure_type,seeded_failure,expected_fix,notes
+CI-001,missing_dependency,Import fails because a required Python package is absent,Add the missing dependency to server/pyproject.toml,
+CI-002,npm_dependency,Frontend build fails because an imported npm package is absent,Add the missing dependency to client/package.json,
+CI-003,python_import_error,Python module import path is incorrect,Correct the import path,
+CI-004,typescript_error,TypeScript build fails on an incompatible type,Adjust the type or implementation,
+CI-005,unit_test_logic,Unit test fails because a simple function returns the wrong value,Fix the function logic,
+CI-006,lint_format,CI fails on formatting or lint rule violation,Apply formatter or lint-safe code change,
+CI-007,env_config,App crashes when optional env var is missing,Add safe default or validation,
+CI-008,test_expectation,Test expectation is stale after a behavior change,Update implementation or test based on intended behavior,
+CI-009,build_command,Build script references an invalid command or path,Correct the build script/path,
+CI-010,schema_mismatch,Code expects a database column/table that schema does not define,Update schema or code contract,
