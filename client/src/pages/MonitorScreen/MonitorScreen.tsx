@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import {
+  DEMO_MODE,
   fetchMonitoredRepos,
   connectEventStream,
   removeMonitoredRepo,
@@ -33,6 +34,108 @@ const CATEGORIES = [
   { id: 'rsi',   label: 'ARCH_INDEX' },
 ];
 
+const DEMO_REPOS: MonitoredRepo[] = [
+  {
+    full_name: 'acme/payments-api',
+    has_rsi: true,
+    webhook_id: 18427,
+    webhook_active: true,
+  },
+  {
+    full_name: 'acme/web-dashboard',
+    has_rsi: true,
+    webhook_id: 18428,
+    webhook_active: true,
+  },
+];
+
+function demoEvents(): SSEEvent[] {
+  const now = Date.now();
+  const stamp = (secondsAgo: number) => new Date(now - secondsAgo * 1000).toISOString();
+
+  return [
+    {
+      type: 'webhook_received',
+      timestamp: stamp(52),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'GitHub Actions workflow_run completed with failure on branch main.',
+      },
+    } as SSEEvent,
+    {
+      type: 'cold_start_started',
+      timestamp: stamp(45),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'Repository Structure Index cold-start triggered for 184 source files.',
+      },
+    } as SSEEvent,
+    {
+      type: 'cold_start_completed',
+      timestamp: stamp(36),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'RSI synced file map, symbol map, imports, and sensitivity metadata.',
+      },
+    } as SSEEvent,
+    {
+      type: 'job_started',
+      timestamp: stamp(30),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'CI remediation graph started from failed pytest job logs.',
+      },
+    } as SSEEvent,
+    {
+      type: 'agent_step',
+      timestamp: stamp(24),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'Memory recall found a similar dependency/import failure with 0.82 cosine similarity.',
+      },
+    } as SSEEvent,
+    {
+      type: 'agent_step',
+      timestamp: stamp(18),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'Generated patch for requirements and import path after RSI blast-radius check.',
+      },
+    } as SSEEvent,
+    {
+      type: 'job_completed',
+      timestamp: stamp(10),
+      data: {
+        repo: 'acme/payments-api',
+        detail: 'Fix PR opened: devops-agent/fix-main with 2 changed files.',
+      },
+    } as SSEEvent,
+    {
+      type: 'pr_review_result',
+      timestamp: stamp(4),
+      data: {
+        repo: 'acme/web-dashboard',
+        score: 86,
+        score_label: 'LOW_RISK',
+        merge_recommendation: 'approve',
+        summary: 'PR review passed after checking changed routes against RSI import graph and sensitive-file policy.',
+        top_findings: [
+          {
+            severity: 'info',
+            file: 'client/src/api/api.ts',
+            title: 'Demo mode avoids localhost OAuth redirects on static deployments',
+          },
+          {
+            severity: 'info',
+            file: 'server/rsi/schema.sql',
+            title: 'pgvector HNSW memory index is available for future failure recall',
+          },
+        ],
+      },
+    } as SSEEvent,
+  ];
+}
+
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString('en-US', { hour12: false });
 }
@@ -52,6 +155,27 @@ export default function MonitorScreen() {
 
   // Fetch data on mount
   useEffect(() => {
+    if (DEMO_MODE) {
+      setMonitoredRepos(DEMO_REPOS);
+      setIsLoadingRepos(false);
+      setEvents([]);
+
+      const replay = demoEvents();
+      let index = 0;
+      const timer = window.setInterval(() => {
+        setEvents((prev) => {
+          const next = replay[index];
+          return next ? [...prev, next] : prev;
+        });
+        index += 1;
+        if (index >= replay.length) {
+          window.clearInterval(timer);
+        }
+      }, 750);
+
+      return () => window.clearInterval(timer);
+    }
+
     fetchMonitoredRepos()
       .then((data) => setMonitoredRepos(Array.isArray(data) ? data : []))
       .catch(console.error)
@@ -75,6 +199,11 @@ export default function MonitorScreen() {
   }, [events, activeFilter]);
 
   const handleRemoveRepo = async (fullName: string) => {
+    if (DEMO_MODE) {
+      setMonitoredRepos((prev) => prev.filter((r) => r.full_name !== fullName));
+      return;
+    }
+
     setRemovingRepo(fullName);
     try {
       await removeMonitoredRepo(fullName);
@@ -94,13 +223,13 @@ export default function MonitorScreen() {
           <div className="monitor-header__content">
             <div>
               <div className="monitor-header__title-group">
-                <span className="monitor-header__badge">Live</span>
+                <span className="monitor-header__badge">{DEMO_MODE ? 'Demo' : 'Live'}</span>
                 <h2 className="monitor-header__title">
                   {user?.name ?? user?.login ?? 'Dashboard'}
                 </h2>
               </div>
               <p className="monitor-header__desc">
-                Monitoring {monitoredRepos.length} active repository · {events.length} events streamed
+                {DEMO_MODE ? 'Sample replay' : 'Monitoring'} {monitoredRepos.length} active repository · {events.length} events streamed
               </p>
             </div>
           </div>
@@ -117,7 +246,9 @@ export default function MonitorScreen() {
                  <span className="material-symbols-outlined text-3xl text-on-surface-variant/40">signal_cellular_nodata</span>
                </div>
                <h3 className="text-xl font-bold text-on-surface uppercase tracking-tight">No metrics in the monitor dashboard</h3>
-               <p className="mt-2 text-on-surface-variant text-sm max-w-sm">Initialize a GitHub repository to see live metrics and pipeline health here.</p>
+               <p className="mt-2 text-on-surface-variant text-sm max-w-sm">
+                 {DEMO_MODE ? 'Demo repositories were removed. Refresh the page to replay the sample workflow.' : 'Initialize a GitHub repository to see live metrics and pipeline health here.'}
+               </p>
                <a href="/init" className="mt-8 px-12 py-4 bg-primary text-white text-xs font-black rounded-xl uppercase tracking-widest no-underline hover:bg-primary-container transition-all shadow-lg shadow-primary/25 inline-flex items-center justify-center min-w-[240px]">
                  Start Integration
                </a>

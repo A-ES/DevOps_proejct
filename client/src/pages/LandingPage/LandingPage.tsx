@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { API_BASE } from '../../api/api';
+import { API_BASE, DEMO_MODE } from '../../api/api';
 import logoSrc from '../../assets/logo.png';
 import './LandingPage.css';
 
@@ -11,7 +11,7 @@ export default function LandingPage() {
 
   const handleAppConsole = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    if (isAuthenticated) {
+    if (DEMO_MODE || isAuthenticated) {
       navigate('/monitor');
     } else {
       sessionStorage.setItem('postAuthRedirect', '/init');
@@ -47,7 +47,7 @@ export default function LandingPage() {
             disabled={isLoading}
             type="button"
           >
-            {isLoading ? 'INIT…' : isAuthenticated ? 'Dashboard' : 'App Console'}
+            {isLoading ? 'INIT...' : DEMO_MODE || isAuthenticated ? 'Dashboard' : 'App Console'}
           </button>
         </div>
       </nav>
@@ -77,7 +77,7 @@ export default function LandingPage() {
               disabled={isLoading}
               type="button"
             >
-              {isAuthenticated ? '[ EXPLORE_CONSOLE ]' : '[ ESTABLISH_UPLINK ]'}
+              {DEMO_MODE ? '[ OPEN_DEMO ]' : isAuthenticated ? '[ EXPLORE_CONSOLE ]' : '[ ESTABLISH_UPLINK ]'}
               <span className="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1 group-hover:rotate-12">bolt</span>
             </button>
             <button

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { fetchCurrentUser, logout as apiLogout } from '../api/api';
+import { DEMO_MODE, fetchCurrentUser, logout as apiLogout } from '../api/api';
 import type { User } from '../api/api';
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -26,6 +26,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   const refetch = useCallback(async (): Promise<void> => {
+    if (DEMO_MODE) {
+      setUser({
+        id: 'demo-user',
+        login: 'interviewer-demo',
+        name: 'EasyOps Demo',
+        email: '',
+        avatar_url: '',
+      });
+      setRepos([
+        {
+          id: 1,
+          full_name: 'acme/payments-api',
+          name: 'payments-api',
+          owner: 'acme',
+          private: false,
+          description: 'FastAPI service with GitHub Actions CI',
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          full_name: 'acme/web-dashboard',
+          name: 'web-dashboard',
+          owner: 'acme',
+          private: false,
+          description: 'React dashboard with Vite build checks',
+          updated_at: new Date().toISOString(),
+        },
+      ]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const data = await fetchCurrentUser();
@@ -41,6 +73,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 
   const logout = useCallback(async (): Promise<void> => {
+    if (DEMO_MODE) {
+      window.location.href = '/';
+      return;
+    }
+
     try {
       await apiLogout();
     } catch (err) {
