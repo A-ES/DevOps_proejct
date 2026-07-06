@@ -1,19 +1,15 @@
-# DevOps Agent 
+# Autonomous CI/CD Remediation Agent
 
-DevOps Agent is an autonomous CI/CD pipeline monitor, PR reviewer, and issue fixer powered by LangChain and LangGraph. Built for modern DevOps workflows, it seamlessly integrates with GitHub to automatically analyze CI failures, review Pull Requests based on a custom scoring system, and monitor CD pipelines across multiple cloud providers (AWS, GCP, Azure).
+An AI-powered DevOps agent that monitors GitHub Actions, diagnoses CI failures with repository-aware context, and opens fix pull requests. The system combines a FastAPI backend, LangGraph/LangChain orchestration, PostgreSQL/pgvector memory, provider-neutral CD diagnostics, Telegram approval workflows, and a React dashboard.
 
-## Features
+## Highlights
 
-- **Autonomous CI Fixer**: Automatically detects CI workflow failures via GitHub webhooks, triggers an AI agent to trace the root cause using the Repository Structure Index (RSI) and PR diffs, and generates a fix Pull Request autonomously.
-- **Intelligent PR Reviews**: Three-tier quality gate for Pull Requests:
-  - **Score ≥ 75**: Clear to merge, clean code.
-  - **Score 50–74**: Triggers manual Telegram approval before merging.
-  - **Score < 50**: Blocks CI/CD and triggers an automated fix agent to suggest improvements based on review findings.
-- **CD Pipeline Monitoring**: Monitors deployment pipelines across AWS, GCP, Azure, and custom providers. It aggregates metrics (Deployment Health, Error Rate, Latency) and automates anomaly detection and sends report directly to telegram bot.
-- **RSI (Repository Structure Index)**: An intelligent codebase ingestion pipeline that maps the structure of a repository, enabling the AI to precisely fetch code context dynamically.
-- **Telegram Moderation**: Deep integration with Telegram for real-time pipeline notifications, PR review summaries, and fast manual approvals via interactive buttons.
-- **Multi-Tenant OAuth**: Secure, per-user GitHub OAuth token integration for handling GitHub MCP operations and repository webhooks in isolation.
-
+- **Autonomous CI fixer:** Receives GitHub `workflow_run` webhooks, fetches failed job logs, builds context from the Repository Structure Index (RSI), generates a patch, and opens a GitHub fix PR.
+- **Repository Structure Index:** Parses repo files into PostgreSQL tables for file roles, symbols, imports, sensitivity flags, and repo summaries so the agent can retrieve targeted context instead of sending the whole codebase to the LLM.
+- **Episodic memory:** Stores merged fix knowledge in `agent_memory` with OpenAI embeddings, pgvector `vector(1024)`, HNSW indexing, and cosine similarity for few-shot RAG on future failures.
+- **PR review workflow:** Reviews pull requests with RSI context, quality thresholds, Telegram approval actions, and optional fix generation for low-scoring changes.
+- **Cloud-agnostic CD diagnostics:** Normalizes AWS, GCP, Azure, and custom webhook failures into a shared `CDFailureContext` before LLM diagnosis.
+- **Portfolio-ready deployment:** Includes Dockerfiles, Docker Compose with PostgreSQL/pgvector, environment templates, and benchmark tooling for measuring debugging-time reduction.
 ## Architecture
 <img width="6548" height="2766" alt="fossflow-export-2026-04-16T17_33_18 977Z" src="https://github.com/user-attachments/assets/88bad79f-94b5-40d3-89a1-820b7f0eb261" />
 
