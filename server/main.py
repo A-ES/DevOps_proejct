@@ -91,10 +91,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow the React dev server (with credentials for cookies)
+# CORS — allow configured frontend origins (with credentials for cookies)
+settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

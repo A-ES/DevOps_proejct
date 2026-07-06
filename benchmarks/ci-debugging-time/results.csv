@@ -1,0 +1,11 @@
+case_id,failure_type,manual_minutes,agent_minutes,agent_opened_pr,agent_pr_passed_ci,notes
+CI-001,missing_dependency,,,,,
+CI-002,npm_dependency,,,,,
+CI-003,python_import_error,,,,,
+CI-004,typescript_error,,,,,
+CI-005,unit_test_logic,,,,,
+CI-006,lint_format,,,,,
+CI-007,env_config,,,,,
+CI-008,test_expectation,,,,,
+CI-009,build_command,,,,,
+CI-010,schema_mismatch,,,,,
