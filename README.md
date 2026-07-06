@@ -17,6 +17,12 @@ An AI-powered DevOps agent that monitors GitHub Actions, diagnoses CI failures w
 **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, Server-Sent Events  
 **Infrastructure:** Docker, Docker Compose, PostgreSQL/pgvector, GitHub OAuth, GitHub webhooks
 
+- **Autonomous CI fixer:** Receives GitHub `workflow_run` webhooks, fetches failed job logs, builds context from the Repository Structure Index (RSI), generates a patch, and opens a GitHub fix PR.
+- **Repository Structure Index:** Parses repo files into PostgreSQL tables for file roles, symbols, imports, sensitivity flags, and repo summaries so the agent can retrieve targeted context instead of sending the whole codebase to the LLM.
+- **Episodic memory:** Stores merged fix knowledge in `agent_memory` with OpenAI embeddings, pgvector `vector(1024)`, HNSW indexing, and cosine similarity for few-shot RAG on future failures.
+- **PR review workflow:** Reviews pull requests with RSI context, quality thresholds, Telegram approval actions, and optional fix generation for low-scoring changes.
+- **Cloud-agnostic CD diagnostics:** Normalizes AWS, GCP, Azure, and custom webhook failures into a shared `CDFailureContext` before LLM diagnosis.
+- **Portfolio-ready deployment:** Includes Dockerfiles, Docker Compose with PostgreSQL/pgvector, environment templates, and benchmark tooling for measuring debugging-time reduction.
 ## Architecture
 
 ```mermaid
